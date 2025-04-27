@@ -1,3 +1,4 @@
+import os
 from flask import Flask, request, jsonify
 
 app = Flask(__name__)
@@ -5,7 +6,8 @@ app = Flask(__name__)
 
 @app.route("/hello", methods=["GET", "POST"])
 def hello():
-    return "Hello, world!"
+    test_var = os.getenv("TESTSECRET")
+    return f"Hello, {test_var} world!"
 
 
 # Run the app
