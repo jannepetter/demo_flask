@@ -33,6 +33,7 @@ jobs:
       - name: Deploy to Container Apps
         run: |
           az containerapp update \
+            --only-show-errors \
             --name $CONTAINER_APP_NAME \
             --resource-group $RESOURCE_GROUP \
             --image $AZURE_CONTAINER_REGISTRY/$IMAGE_NAME:${{ github.sha }}
