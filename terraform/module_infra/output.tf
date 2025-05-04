@@ -1,7 +1,7 @@
 output "resource_group" {
   value = {
-    location = data.azurerm_resource_group.rg.location
-    name     = data.azurerm_resource_group.rg.name
+    location = azurerm_resource_group.rg.location
+    name     = azurerm_resource_group.rg.name
   }
   sensitive = true
 }

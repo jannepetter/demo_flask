@@ -1,11 +1,11 @@
 resource "azurerm_container_app_environment" "cont_app_env" {
-  name                = "flask-app-cont-env"
+  name                = "cae-${var.app_name}-${var.environment}-${var.rg_location}"
   location            = var.rg_location
   resource_group_name = var.rg_name
 }
 resource "azurerm_user_assigned_identity" "containerapp" {
   location            = var.rg_location
-  name                = "containerappidentity"
+  name                = "containerappidentity-${var.app_name}-${var.environment}-${var.rg_location}"
   resource_group_name = var.rg_name
 }
 resource "azurerm_role_assignment" "containerapp" {
@@ -15,7 +15,7 @@ resource "azurerm_role_assignment" "containerapp" {
 }
 
 resource "azurerm_container_app" "ca" {
-  name                         = "flask-container-app"
+  name                         = "ca-${var.app_name}-${var.environment}"
   container_app_environment_id = azurerm_container_app_environment.cont_app_env.id
   resource_group_name          = var.rg_name
   revision_mode                = "Single"
@@ -34,17 +34,17 @@ resource "azurerm_container_app" "ca" {
   }
   template {
     container {
-      name   = "demo-flask"
+      name   = "${var.app_name}-${var.environment}-${var.rg_location}"
       image  = "${var.acr_login_server}/flask-server:0.0.0"
-      cpu    = 0.25
-      memory = "0.5Gi"
+      cpu    = var.cpu
+      memory = var.memory
       env {
         name        = "TESTSECRET"
         secret_name = var.example_secret_name
       }
     }
-    min_replicas = 1
-    max_replicas = 2
+    min_replicas = var.min_replicas
+    max_replicas = var.max_replicas
   }
   depends_on = [
     azurerm_user_assigned_identity.containerapp
@@ -65,7 +65,7 @@ output "container_app_url" {
 }
 
 resource "azuread_application" "my_app" {
-  display_name     = "joo-container-app"
+  display_name     = "app-${var.app_name}-${var.environment}-${var.rg_location}"
   sign_in_audience = "AzureADMyOrg"
   web {
     redirect_uris = ["https://${azurerm_container_app.ca.ingress[0].fqdn}/.auth/login/aad/callback"]

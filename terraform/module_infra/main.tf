@@ -1,14 +1,14 @@
-data "azurerm_resource_group" "rg" {
-  name = "flask-app"
+data "azurerm_resource_group" "common_rg" {
+  name = "common"
 }
 data "azurerm_container_registry" "acr" {
-  name                = "flaskdemohommat"
-  resource_group_name = data.azurerm_resource_group.rg.name
+  name                = "demoflask"
+  resource_group_name = data.azurerm_resource_group.common_rg.name
 }
 
 data "azurerm_key_vault" "fav" {
-  name                = "flask-app-vault"
-  resource_group_name = data.azurerm_resource_group.rg.name
+  name                = "prod-demoflask"
+  resource_group_name = data.azurerm_resource_group.common_rg.name
 }
 
 data "azurerm_key_vault_secret" "example_secret" {
@@ -18,4 +18,9 @@ data "azurerm_key_vault_secret" "example_secret" {
 
 data "azurerm_subscription" "current" {
   subscription_id = var.SUBSCRIPTION_ID
+}
+
+resource "azurerm_resource_group" "rg" {
+  name     = "rg-${var.app_name}-${var.environment}-${var.location}"
+  location = var.location
 }

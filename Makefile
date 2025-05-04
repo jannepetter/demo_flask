@@ -1,3 +1,5 @@
+IMAGE_NAME ?= flask-server
+TAG ?= 0.0.0
 
 ifneq ("$(wildcard .env)","")
 	include .env
