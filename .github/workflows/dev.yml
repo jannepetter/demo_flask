@@ -27,8 +27,8 @@ jobs:
 
       - name: Build and push image
         run: |
-          docker build -t $AZURE_CONTAINER_REGISTRY/$IMAGE_NAME:${{ github.sha }} .
-          docker push $AZURE_CONTAINER_REGISTRY/$IMAGE_NAME:${{ github.sha }}
+          docker build -q -t $AZURE_CONTAINER_REGISTRY/$IMAGE_NAME:${{ github.sha }} .
+          docker push -q $AZURE_CONTAINER_REGISTRY/$IMAGE_NAME:${{ github.sha }}
 
       - name: Deploy to Container Apps
         run: |

@@ -7,7 +7,7 @@ app = Flask(__name__)
 @app.route("/hello", methods=["GET", "POST"])
 def hello():
     test_var = os.getenv("TESTSECRET")
-    return f"Hello, {test_var} world! V0.2"
+    return f"Hello, {test_var} world! V0.3"
 
 
 # Run the app
