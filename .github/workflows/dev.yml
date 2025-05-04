@@ -36,4 +36,4 @@ jobs:
             --only-show-errors \
             --name $CONTAINER_APP_NAME \
             --resource-group $RESOURCE_GROUP \
-            --image $AZURE_CONTAINER_REGISTRY/$IMAGE_NAME:${{ github.sha }}
+            --image $AZURE_CONTAINER_REGISTRY/$IMAGE_NAME:${{ github.sha }} > /dev/null 2>&1
