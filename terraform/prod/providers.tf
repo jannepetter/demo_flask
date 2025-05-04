@@ -3,7 +3,7 @@ terraform {
     resource_group_name  = "common"
     storage_account_name = "tfbackenddemoflask"
     container_name       = "terraform-state"
-    key                  = "terraform.tfstate"
+    key                  = "prod-terraform.tfstate"
   }
 
   required_providers {
