@@ -28,3 +28,10 @@ output "subscription" {
   }
   sensitive = true
 }
+
+output "app_subnet" {
+  value = {
+    id = azurerm_subnet.app_subnet.id
+  }
+  sensitive = true
+}

@@ -59,3 +59,9 @@ variable "max_replicas" {
   type      = number
   sensitive = false
 }
+
+variable "app_subnet" {
+  type = object({
+    id    = string
+  })
+}

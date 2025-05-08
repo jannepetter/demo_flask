@@ -41,6 +41,7 @@ module "app" {
   memory               = each.value.memory
   min_replicas         = each.value.min_replicas
   max_replicas         = each.value.max_replicas
+  app_subnet          = module.infra[each.key].app_subnet
 }
 
 output "app_urls" {

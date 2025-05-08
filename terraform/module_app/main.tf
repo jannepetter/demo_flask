@@ -2,6 +2,14 @@ resource "azurerm_container_app_environment" "cont_app_env" {
   name                = "cae-${var.app_name}-${var.environment}-${var.rg_location}"
   location            = var.rg_location
   resource_group_name = var.rg_name
+  infrastructure_subnet_id = var.app_subnet.id
+
+  workload_profile {
+      name                  = "Consumption"
+      workload_profile_type = "Consumption"
+      maximum_count         = 3
+      minimum_count         = 0
+  }
 }
 resource "azurerm_user_assigned_identity" "containerapp" {
   location            = var.rg_location
