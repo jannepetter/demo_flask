@@ -1,11 +1,8 @@
-variable "rg_location" {
-  type      = string
-  sensitive = true
-}
-
-variable "rg_name" {
-  type      = string
-  sensitive = true
+variable "resource_group" {
+  type = object({
+    location = string
+    name     = string
+  })
 }
 
 variable "acr_id" {
@@ -60,8 +57,8 @@ variable "max_replicas" {
   sensitive = false
 }
 
-variable "app_subnet" {
+variable "cae" {
   type = object({
-    id    = string
+    id = string
   })
 }

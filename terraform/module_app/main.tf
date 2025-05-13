@@ -1,20 +1,7 @@
-resource "azurerm_container_app_environment" "cont_app_env" {
-  name                = "cae-${var.app_name}-${var.environment}-${var.rg_location}"
-  location            = var.rg_location
-  resource_group_name = var.rg_name
-  infrastructure_subnet_id = var.app_subnet.id
-
-  workload_profile {
-      name                  = "Consumption"
-      workload_profile_type = "Consumption"
-      maximum_count         = 3
-      minimum_count         = 0
-  }
-}
 resource "azurerm_user_assigned_identity" "containerapp" {
-  location            = var.rg_location
-  name                = "containerappidentity-${var.app_name}-${var.environment}-${var.rg_location}"
-  resource_group_name = var.rg_name
+  location            = var.resource_group.location
+  name                = "containerappidentity-${var.app_name}-${var.environment}-${var.resource_group.location}"
+  resource_group_name = var.resource_group.name
 }
 resource "azurerm_role_assignment" "containerapp" {
   scope                = var.acr_id
@@ -24,8 +11,8 @@ resource "azurerm_role_assignment" "containerapp" {
 
 resource "azurerm_container_app" "ca" {
   name                         = "ca-${var.app_name}-${var.environment}"
-  container_app_environment_id = azurerm_container_app_environment.cont_app_env.id
-  resource_group_name          = var.rg_name
+  container_app_environment_id = var.cae.id
+  resource_group_name          = var.resource_group.name
   revision_mode                = "Single"
   identity {
     type         = "UserAssigned"
@@ -42,7 +29,7 @@ resource "azurerm_container_app" "ca" {
   }
   template {
     container {
-      name   = "${var.app_name}-${var.environment}-${var.rg_location}"
+      name   = "${var.app_name}-${var.environment}-${var.resource_group.location}"
       image  = "${var.acr_login_server}/flask-server:0.0.0"
       cpu    = var.cpu
       memory = var.memory
@@ -73,7 +60,7 @@ output "container_app_url" {
 }
 
 resource "azuread_application" "my_app" {
-  display_name     = "app-${var.app_name}-${var.environment}-${var.rg_location}"
+  display_name     = "app-${var.app_name}-${var.environment}-${var.resource_group.location}"
   sign_in_audience = "AzureADMyOrg"
   web {
     redirect_uris = ["https://${azurerm_container_app.ca.ingress[0].fqdn}/.auth/login/aad/callback"]
@@ -90,7 +77,7 @@ resource "azapi_resource_action" "my_app_auth" {
   resource_id = "${azurerm_container_app.ca.id}/authConfigs/current"
   method      = "PUT"
   body = {
-    location = var.rg_location
+    location = var.resource_group.location
     properties = {
       globalValidation = {
         redirectToProvider          = "azureactivedirectory"

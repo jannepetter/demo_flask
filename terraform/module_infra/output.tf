@@ -35,3 +35,17 @@ output "app_subnet" {
   }
   sensitive = true
 }
+
+output "cae" {
+  value = {
+    id = azurerm_container_app_environment.cont_app_env.id
+  }
+  sensitive = true
+}
+
+output "vnet" {
+  value = {
+    name = azurerm_virtual_network.vnet.name
+  }
+  sensitive = true
+}
