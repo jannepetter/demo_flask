@@ -5,6 +5,13 @@ output "resource_group" {
   }
   sensitive = true
 }
+output "common_resource_group" {
+  value = {
+    location = data.azurerm_resource_group.common_rg.location
+    name     = data.azurerm_resource_group.common_rg.name
+  }
+  sensitive = true
+}
 
 output "acr" {
   value = {

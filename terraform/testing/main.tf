@@ -50,6 +50,15 @@ module "app" {
   memory               = each.value.memory
   min_replicas         = each.value.min_replicas
   max_replicas         = each.value.max_replicas
+  depends_on           = [module.infra]
+}
+
+module "dns" {
+  for_each          = { for env in var.environments : env.environment => env }
+  source            = "../module_dns"
+  resource_group    = module.infra[each.key].common_resource_group
+  container_app_url = module.app[each.key].container_app_url
+  depends_on        = [module.infra, module.app]
 }
 
 output "app_urls" {
