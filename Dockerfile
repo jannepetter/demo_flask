@@ -13,5 +13,6 @@ COPY . .
 # USER appuser
 
 EXPOSE 5000
-RUN chmod +x /app/entrypoint.sh
-ENTRYPOINT ["sh","/app/entrypoint.sh"]
+
+CMD ["python", "app.py"]
+
