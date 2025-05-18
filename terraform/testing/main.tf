@@ -6,6 +6,7 @@ variable "app_name" {
 }
 
 variable "environments" {
+  description = "List of environment configurations with all required values"
   type = list(object({
     environment  = string
     location     = string
@@ -14,8 +15,17 @@ variable "environments" {
     min_replicas = number
     max_replicas = number
   }))
+  default = [
+    {
+      environment  = "testing"
+      location     = "northeurope"
+      cpu          = 0.25
+      memory       = "0.5Gi"
+      min_replicas = 1
+      max_replicas = 2
+    }
+  ]
 }
-
 module "infra" {
   for_each        = { for env in var.environments : env.environment => env }
   source          = "../module_infra"
