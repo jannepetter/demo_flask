@@ -1,10 +1,8 @@
-variable "rg_location" {
-  type      = string
-  sensitive = true
-}
-
-variable "rg_name" {
-  type      = string
+variable "resource_group" {
+  type = object({
+    location = string
+    name     = string
+  })
   sensitive = true
 }
 

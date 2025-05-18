@@ -30,8 +30,7 @@ module "app" {
   source               = "../module_app"
   acr_id               = module.infra[each.key].acr.id
   acr_login_server     = module.infra[each.key].acr.login_server
-  rg_name              = module.infra[each.key].resource_group.name
-  rg_location          = module.infra[each.key].resource_group.location
+  resource_group       = module.infra[each.key].resource_group
   example_secret_name  = module.infra[each.key].example_secret.name
   example_secret_value = module.infra[each.key].example_secret.value
   tenant_id            = module.infra[each.key].subscription.tenant_id
@@ -41,6 +40,14 @@ module "app" {
   memory               = each.value.memory
   min_replicas         = each.value.min_replicas
   max_replicas         = each.value.max_replicas
+  depends_on = [module.infra]
+}
+module "fd" {
+  for_each             = { for env in var.environments : env.environment => env }
+  source               = "../module_fd"
+  container_app_fqdn   = module.app[each.key].container_app_fqdn
+  resource_group       = module.infra[each.key].resource_group
+  depends_on = [module.app, module.infra]
 }
 
 output "app_urls" {
