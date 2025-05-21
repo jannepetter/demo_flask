@@ -68,7 +68,10 @@ resource "azuread_application" "my_app" {
   display_name     = "app-${var.app_name}-${var.environment}-${var.resource_group.location}"
   sign_in_audience = "AzureADMyOrg"
   web {
-    redirect_uris = ["https://${azurerm_container_app.ca.ingress[0].fqdn}/.auth/login/aad/callback"]
+    redirect_uris = [
+      "https://${azurerm_container_app.ca.ingress[0].fqdn}/.auth/login/aad/callback",
+      # "https://jep.example.fi/.auth/login/aad/callback",
+      ]
 
     implicit_grant {
       access_token_issuance_enabled = true
@@ -108,4 +111,29 @@ resource "azapi_resource_action" "my_app_auth" {
       }
     }
   }
+}
+
+resource "azurerm_dns_zone" "example" {
+  name                = "example.fi"
+  resource_group_name = var.resource_group.name
+}
+
+resource "azurerm_dns_txt_record" "example" {
+  name                = "asuid.jep"
+  resource_group_name = var.resource_group.name
+  zone_name           = azurerm_dns_zone.example.name
+  ttl                 = 300
+
+  record {
+    value = azurerm_container_app.ca.custom_domain_verification_id
+  }
+}
+resource "azurerm_container_app_custom_domain" "example" {
+  name                     = "jep.example.fi"
+  container_app_id         = azurerm_container_app.ca.id
+  certificate_binding_type = "SniEnabled"
+  depends_on = [
+    azurerm_user_assigned_identity.containerapp,
+    azurerm_role_assignment.containerapp
+  ]
 }

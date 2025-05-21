@@ -50,6 +50,7 @@ module "app" {
   memory               = each.value.memory
   min_replicas         = each.value.min_replicas
   max_replicas         = each.value.max_replicas
+  depends_on           = [module.infra]
 }
 
 output "app_urls" {
