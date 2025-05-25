@@ -6,13 +6,11 @@ variable "resource_group" {
   sensitive = true
 }
 
-variable "acr_id" {
-  type      = string
-  sensitive = true
-}
-
-variable "acr_login_server" {
-  type      = string
+variable "acr" {
+  type = object({
+    id           = string
+    login_server = string
+  })
   sensitive = true
 }
 
@@ -55,5 +53,9 @@ variable "min_replicas" {
 
 variable "max_replicas" {
   type      = number
+  sensitive = false
+}
+variable "extra_redirect_uri" {
+  type      = string
   sensitive = false
 }
