@@ -49,21 +49,7 @@ module "app" {
   memory               = each.value.memory
   min_replicas         = each.value.min_replicas
   max_replicas         = each.value.max_replicas
-  extra_redirect_uri   = "https://staging.example.fi/.auth/login/aad/callback"
   depends_on           = [module.infra]
-}
-
-module "domain" {
-  for_each                 = { for env in var.environments : env.environment => env }
-  source                   = "../module_domain"
-  resource_group           = module.infra[each.key].resource_group
-  app_name                 = var.app_name
-  environment              = each.value.environment
-  custom_domain            = "staging.example.fi"
-  cert_name                = "my-test-cert"
-  ca_env_name              = "cae-${var.app_name}-${each.value.environment}-${module.infra[each.key].resource_group.location}"
-  common_resources_rg_name = "common"
-  depends_on               = [module.infra, module.app]
 }
 
 output "app_urls" {

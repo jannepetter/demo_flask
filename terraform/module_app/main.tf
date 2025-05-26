@@ -28,20 +28,12 @@ resource "azurerm_container_app" "ca" {
     server   = var.acr.login_server
     identity = azurerm_user_assigned_identity.containerapp.id
   }
-  # secret {
-  #   name  = var.example_secret_name
-  #   value = var.example_secret_value
-  # }
   template {
     container {
       name   = "${var.app_name}-${var.environment}-${var.resource_group.location}"
       image  = "${var.acr.login_server}/flask-server:0.0.0"
       cpu    = var.cpu
       memory = var.memory
-      # env {
-      #   name        = "TESTSECRET"
-      #   secret_name = var.example_secret_name
-      # }
     }
     min_replicas = var.min_replicas
     max_replicas = var.max_replicas
@@ -70,8 +62,7 @@ resource "azuread_application" "my_app" {
   sign_in_audience = "AzureADMyOrg"
   web {
     redirect_uris = [
-      "https://${azurerm_container_app.ca.ingress[0].fqdn}/.auth/login/aad/callback",
-      var.extra_redirect_uri,
+      "https://${azurerm_container_app.ca.ingress[0].fqdn}/.auth/login/aad/callback"
     ]
 
     implicit_grant {

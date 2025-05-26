@@ -28,8 +28,7 @@ module "infra" {
 module "app" {
   for_each             = { for env in var.environments : env.environment => env }
   source               = "../module_app"
-  acr_id               = module.infra[each.key].acr.id
-  acr_login_server     = module.infra[each.key].acr.login_server
+  acr                  = module.infra[each.key].acr
   resource_group       = module.infra[each.key].resource_group
   example_secret_name  = module.infra[each.key].example_secret.name
   example_secret_value = module.infra[each.key].example_secret.value

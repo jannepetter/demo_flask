@@ -55,7 +55,3 @@ variable "max_replicas" {
   type      = number
   sensitive = false
 }
-variable "extra_redirect_uri" {
-  type      = string
-  sensitive = false
-}
