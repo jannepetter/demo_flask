@@ -53,27 +53,15 @@ resource "null_resource" "run_az_cli" {
   ]
 }
 
-# does not work
-# resource "azapi_resource_action" "bind_custom_domain" {
-#   type        = "Microsoft.App/containerApps@2022-03-01"
-#   resource_id = data.azurerm_container_app.ca.id
-#   method      = "PATCH"
-#   body = {
-#     properties = {
-#       configurations = {
-#       ingress = {
-#         customDomains = [
-#           {
-#             name          = azurerm_container_app_custom_domain.example.name,
-#             bindingType   = "SniEnabled",
-#             certificateId = azapi_resource.managed_certificate.output.id
-#           }
-#         ]
-#       }
-#       }
-#     }
-#   }
-#   depends_on = [
-#     azapi_resource.managed_certificate
-#   ]
-# }
+data "azurerm_traffic_manager_profile" "example" {
+  name                = "flaskdemo"
+  resource_group_name = "rg-global"
+}
+
+resource "azurerm_traffic_manager_external_endpoint" "example" {
+  name                 = "tm-endpoint-ca-homma"
+  profile_id           = data.azurerm_traffic_manager_profile.example.id
+  always_serve_enabled = true
+  target               = data.azurerm_container_app.ca.ingress[0].fqdn
+}
+

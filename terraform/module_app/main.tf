@@ -35,7 +35,7 @@ resource "azurerm_container_app" "ca" {
   template {
     container {
       name   = "${var.app_name}-${var.environment}-${var.resource_group.location}"
-      image  = "${var.acr.login_server}/flask-server:0.0.0"
+      image  = "${var.acr.login_server}/flask-server:test"
       cpu    = var.cpu
       memory = var.memory
       # env {
