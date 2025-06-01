@@ -1,1 +1,9 @@
 flask==3.1.0
+azure-identity==1.23.0
+azure-keyvault-secrets==4.9.0
+python-dotenv==1.1.0
+gunicorn==23.0.0
+gevent==25.5.1
+python-jose==3.5.0
+requests==2.32.3
+

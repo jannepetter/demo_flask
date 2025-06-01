@@ -14,6 +14,21 @@ resource "azurerm_role_assignment" "containerapp" {
   principal_id         = azurerm_user_assigned_identity.containerapp.principal_id
 }
 
+data "azurerm_resource_group" "common_rg" {
+  name = "common"
+}
+data "azurerm_key_vault" "fav" {
+  name                = "prod-demoflask"
+  resource_group_name = data.azurerm_resource_group.common_rg.name
+}
+
+
+resource "azurerm_role_assignment" "kv_user" {
+  scope                = data.azurerm_key_vault.fav.id
+  role_definition_name = "Key Vault Secrets User"
+  principal_id         = azurerm_user_assigned_identity.containerapp.principal_id
+}
+
 resource "azurerm_container_app" "ca" {
   name                         = "ca-${var.app_name}-${var.environment}"
   container_app_environment_id = azurerm_container_app_environment.cont_app_env.id
@@ -28,20 +43,12 @@ resource "azurerm_container_app" "ca" {
     server   = var.acr.login_server
     identity = azurerm_user_assigned_identity.containerapp.id
   }
-  # secret {
-  #   name  = var.example_secret_name
-  #   value = var.example_secret_value
-  # }
   template {
     container {
       name   = "${var.app_name}-${var.environment}-${var.resource_group.location}"
-      image  = "${var.acr.login_server}/flask-server:test"
+      image  = "${var.acr.login_server}/flask-server:latest"
       cpu    = var.cpu
       memory = var.memory
-      # env {
-      #   name        = "TESTSECRET"
-      #   secret_name = var.example_secret_name
-      # }
     }
     min_replicas = var.min_replicas
     max_replicas = var.max_replicas
@@ -82,7 +89,7 @@ resource "azuread_application" "my_app" {
 }
 
 resource "azapi_resource_action" "my_app_auth" {
-  type        = "Microsoft.App/containerApps/authConfigs@2024-03-01"
+  type        = "Microsoft.App/containerApps/authConfigs@2025-01-01"
   resource_id = "${azurerm_container_app.ca.id}/authConfigs/current"
   method      = "PUT"
   body = {
@@ -110,6 +117,47 @@ resource "azapi_resource_action" "my_app_auth" {
       platform = {
         enabled = true
       }
+      login = {
+        tokenStore = {
+          enabled = true
+        }
+      }
     }
   }
+}
+
+resource "azapi_update_resource" "patch_env_var" {
+  type        = "Microsoft.App/containerApps@2023-05-01"
+  resource_id = azurerm_container_app.ca.id
+
+  body = {
+    properties = {
+      template = {
+        containers = [
+          {
+            env = [
+              {
+                name  = "AAD_CLIENT_ID"
+                value = azuread_application.my_app.client_id
+              },
+              {
+                name  = "ENV"
+                value = "CLOUD"
+              },
+              {
+                name  = "AZ_CA_CLIENT_ID"
+                value = azurerm_user_assigned_identity.containerapp.client_id
+              },
+              {
+                name  = "AZURE_TENANT_ID"
+                value = var.tenant_id
+              }
+            ]
+          }
+        ]
+      }
+    }
+  }
+
+  depends_on = [azuread_application.my_app]
 }

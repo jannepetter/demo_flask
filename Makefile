@@ -5,7 +5,11 @@ ifneq ("$(wildcard .env)","")
 	include .env
 	export
 endif
-
+compose:
+	docker compose build
+	docker compose up
+down:
+	docker compose down
 build:
 	docker build -t $(ACR_REGISTRY)/$(IMAGE_NAME):$(TAG) .
 run:

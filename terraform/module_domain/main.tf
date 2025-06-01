@@ -9,19 +9,19 @@ data "azurerm_container_app_environment" "ca_env" {
 }
 
 resource "azurerm_container_app_custom_domain" "example" {
-  name                                     = var.custom_domain
-  container_app_id                         = data.azurerm_container_app.ca.id
-  certificate_binding_type                 = "SniEnabled"
+  name                     = var.custom_domain
+  container_app_id         = data.azurerm_container_app.ca.id
+  certificate_binding_type = "SniEnabled"
   lifecycle {
     ignore_changes = [certificate_binding_type, container_app_environment_certificate_id, container_app_id]
   }
 }
 
 resource "azapi_resource" "managed_certificate" {
-  type       = "Microsoft.App/ManagedEnvironments/managedCertificates@2023-05-01"
-  name       = var.cert_name
-  parent_id  = data.azurerm_container_app_environment.ca_env.id
-  location   = var.resource_group.location
+  type      = "Microsoft.App/ManagedEnvironments/managedCertificates@2023-05-01"
+  name      = var.cert_name
+  parent_id = data.azurerm_container_app_environment.ca_env.id
+  location  = var.resource_group.location
   body = {
     properties = {
       subjectName             = var.custom_domain,
@@ -29,7 +29,7 @@ resource "azapi_resource" "managed_certificate" {
     }
   }
   response_export_values = ["*"]
-  depends_on = [ azurerm_container_app_custom_domain.example ]
+  depends_on             = [azurerm_container_app_custom_domain.example]
   lifecycle {
     ignore_changes = [parent_id]
   }
