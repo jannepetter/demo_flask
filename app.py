@@ -10,5 +10,10 @@ def hello():
     return f"Hello, {test_var} world! V0.3"
 
 
+@app.route("/", methods=["GET"])
+def home():
+    return "works"
+
+
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000, debug=True)

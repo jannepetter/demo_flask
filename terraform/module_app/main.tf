@@ -14,6 +14,25 @@ resource "azurerm_role_assignment" "containerapp" {
   principal_id         = azurerm_user_assigned_identity.containerapp.principal_id
 }
 
+
+data "azurerm_resource_group" "common_rg" {
+  name = "common"
+}
+data "azurerm_key_vault" "fav" {
+  name                = "prod-demoflask"
+  resource_group_name = data.azurerm_resource_group.common_rg.name
+}
+resource "azurerm_role_assignment" "secret_user" {
+  scope                = data.azurerm_key_vault.fav.id
+  role_definition_name = "Key Vault Secrets User"
+  principal_id         = azurerm_user_assigned_identity.containerapp.principal_id
+}
+data "azurerm_key_vault_secret" "example_secret" {
+  name         = "testjuttu"
+  key_vault_id = data.azurerm_key_vault.fav.id
+}
+
+
 resource "azurerm_container_app" "ca" {
   name                         = "ca-${var.app_name}-${var.environment}"
   container_app_environment_id = azurerm_container_app_environment.cont_app_env.id
@@ -29,18 +48,19 @@ resource "azurerm_container_app" "ca" {
     identity = azurerm_user_assigned_identity.containerapp.id
   }
   secret {
-    name  = var.example_secret_name
-    value = var.example_secret_value
+    name                 = data.azurerm_key_vault_secret.example_secret.name
+    key_vault_secret_id  = data.azurerm_key_vault_secret.example_secret.id
+    identity             = azurerm_user_assigned_identity.containerapp.id
   }
   template {
     container {
       name   = "${var.app_name}-${var.environment}-${var.resource_group.location}"
-      image  = "${var.acr_login_server}/flask-server:0.0.0"
+      image  = "${var.acr_login_server}/flask-server:test"
       cpu    = var.cpu
       memory = var.memory
       env {
         name        = "TESTSECRET"
-        secret_name = var.example_secret_name
+        secret_name = data.azurerm_key_vault_secret.example_secret.name
       }
     }
     min_replicas = var.min_replicas

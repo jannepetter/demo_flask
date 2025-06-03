@@ -14,14 +14,6 @@ output "acr" {
   sensitive = true
 }
 
-output "example_secret" {
-  value = {
-    name  = data.azurerm_key_vault_secret.example_secret.name
-    value = data.azurerm_key_vault_secret.example_secret.value
-  }
-  sensitive = true
-}
-
 output "subscription" {
   value = {
     tenant_id = data.azurerm_subscription.current.tenant_id
