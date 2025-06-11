@@ -41,8 +41,6 @@ module "app" {
   acr_id               = module.infra[each.key].acr.id
   acr_login_server     = module.infra[each.key].acr.login_server
   resource_group       = module.infra[each.key].resource_group
-  example_secret_name  = module.infra[each.key].example_secret.name
-  example_secret_value = module.infra[each.key].example_secret.value
   tenant_id            = module.infra[each.key].subscription.tenant_id
   app_name             = var.app_name
   environment          = each.value.environment
