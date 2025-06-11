@@ -11,11 +11,6 @@ data "azurerm_key_vault" "fav" {
   resource_group_name = data.azurerm_resource_group.common_rg.name
 }
 
-data "azurerm_key_vault_secret" "example_secret" {
-  name         = "testjuttu"
-  key_vault_id = data.azurerm_key_vault.fav.id
-}
-
 data "azurerm_subscription" "current" {
   subscription_id = var.SUBSCRIPTION_ID
 }

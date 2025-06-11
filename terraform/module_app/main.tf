@@ -28,20 +28,13 @@ resource "azurerm_container_app" "ca" {
     server   = var.acr_login_server
     identity = azurerm_user_assigned_identity.containerapp.id
   }
-  secret {
-    name  = var.example_secret_name
-    value = var.example_secret_value
-  }
+
   template {
     container {
       name   = "${var.app_name}-${var.environment}-${var.resource_group.location}"
-      image  = "${var.acr_login_server}/flask-server:0.0.0"
+      image  = "${var.acr_login_server}/fastapi-server:test"
       cpu    = var.cpu
       memory = var.memory
-      env {
-        name        = "TESTSECRET"
-        secret_name = var.example_secret_name
-      }
     }
     min_replicas = var.min_replicas
     max_replicas = var.max_replicas

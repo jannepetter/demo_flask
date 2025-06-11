@@ -1,13 +1,30 @@
-import os
-from flask import Flask
+from fastapi import FastAPI, Request
+from tortoise.contrib.fastapi import register_tortoise
+from config import TORTOISE_ORM
+from models import User
 
-app = Flask(__name__)
+app = FastAPI()
+
+register_tortoise(
+    app, config=TORTOISE_ORM, generate_schemas=True, add_exception_handlers=True
+)
 
 
-@app.route("/hello", methods=["GET", "POST"])
-def hello():
-    test_var = os.getenv("TESTSECRET")
-    return f"Hello, {test_var} world! V0.3"
+@app.get("/users")
+async def get_users(request: Request):
+    users = await User.all().values("id", "name")
+    return users
+
+
+@app.get("/create_user")
+async def create(request: Request):
+    user = await User.create(name="alice")
+    return f"Created user {user.id}"
+
+
+@app.get("/")
+async def home():
+    return "works"
 
 
 if __name__ == "__main__":

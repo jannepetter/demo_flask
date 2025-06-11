@@ -1,19 +1,10 @@
-IMAGE_NAME ?= flask-server
-TAG ?= 0.0.0
-
-ifneq ("$(wildcard .env)","")
-	include .env
-	export
-endif
-
-build:
-	docker build -t $(ACR_REGISTRY)/$(IMAGE_NAME):$(TAG) .
-run:
-	docker run -p 5000:5000 $(ACR_REGISTRY)/$(IMAGE_NAME):$(TAG)
-push:
-	docker push $(ACR_REGISTRY)/$(IMAGE_NAME):$(TAG) 
-pull:
-	docker pull $(ACR_REGISTRY)/$(IMAGE_NAME):$(TAG) 
+compose:
+	docker compose build
+	docker compose up
+down:
+	docker compose down
+shell:
+	docker compose exec -it server bash
 terrascan_prod:
 	-@echo "Terrascan prod env"
 	docker run --rm -v $(shell pwd)/terraform:/project tenable/terrascan scan \
@@ -27,7 +18,7 @@ docker-clean:
 	@echo "Removing all Docker images..."
 	docker rmi -f $$(docker images -aq) 2>/dev/null || true
 	@echo "Removing all Docker volumes..."
-	docker volume prune -f
+	docker volume rm $$(docker volume ls -q)
 	@echo "Removing all Docker networks..."
 	docker network prune -f
 	@echo "Docker cleanup done."
