@@ -1,7 +1,27 @@
+data "azurerm_resource_group" "common_rg" {
+  name = "common"
+}
+data "azurerm_key_vault" "my_kv" {
+  name                = "prod-demoflask"
+  resource_group_name = data.azurerm_resource_group.common_rg.name
+}
+data "azurerm_key_vault_secret" "db_url" {
+  name         = "database-url"
+  key_vault_id = data.azurerm_key_vault.my_kv.id
+}
+
+data "azurerm_subnet" "cae_subnet" {
+  name                 = "cae-subnet"
+  virtual_network_name = "rg-${var.app_name}-${var.environment}-${var.resource_group.location}-vnet"
+  resource_group_name  = var.resource_group.name
+}
+
+
 resource "azurerm_container_app_environment" "cont_app_env" {
-  name                = "cae-${var.app_name}-${var.environment}-${var.resource_group.location}"
-  location            = var.resource_group.location
-  resource_group_name = var.resource_group.name
+  name                     = "cae-${var.app_name}-${var.environment}-${var.resource_group.location}"
+  location                 = var.resource_group.location
+  resource_group_name      = var.resource_group.name
+  infrastructure_subnet_id = data.azurerm_subnet.cae_subnet.id
 }
 resource "azurerm_user_assigned_identity" "containerapp" {
   location            = var.resource_group.location
@@ -28,13 +48,20 @@ resource "azurerm_container_app" "ca" {
     server   = var.acr_login_server
     identity = azurerm_user_assigned_identity.containerapp.id
   }
-
+  secret {
+    name  = data.azurerm_key_vault_secret.db_url.name
+    value = data.azurerm_key_vault_secret.db_url.value
+  }
   template {
     container {
       name   = "${var.app_name}-${var.environment}-${var.resource_group.location}"
-      image  = "${var.acr_login_server}/fastapi-server:test"
+      image  = "${var.acr_login_server}/fastapi-server:test2"
       cpu    = var.cpu
       memory = var.memory
+      env {
+        name        = "DATABASE_URL"
+        secret_name = data.azurerm_key_vault_secret.db_url.name
+      }
     }
     min_replicas = var.min_replicas
     max_replicas = var.max_replicas

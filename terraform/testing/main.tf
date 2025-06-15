@@ -36,18 +36,19 @@ module "infra" {
 }
 
 module "app" {
-  for_each             = { for env in var.environments : env.environment => env }
-  source               = "../module_app"
-  acr_id               = module.infra[each.key].acr.id
-  acr_login_server     = module.infra[each.key].acr.login_server
-  resource_group       = module.infra[each.key].resource_group
-  tenant_id            = module.infra[each.key].subscription.tenant_id
-  app_name             = var.app_name
-  environment          = each.value.environment
-  cpu                  = each.value.cpu
-  memory               = each.value.memory
-  min_replicas         = each.value.min_replicas
-  max_replicas         = each.value.max_replicas
+  for_each         = { for env in var.environments : env.environment => env }
+  source           = "../module_app"
+  acr_id           = module.infra[each.key].acr.id
+  acr_login_server = module.infra[each.key].acr.login_server
+  resource_group   = module.infra[each.key].resource_group
+  tenant_id        = module.infra[each.key].subscription.tenant_id
+  app_name         = var.app_name
+  environment      = each.value.environment
+  cpu              = each.value.cpu
+  memory           = each.value.memory
+  min_replicas     = each.value.min_replicas
+  max_replicas     = each.value.max_replicas
+  depends_on       = [module.infra]
 }
 
 output "app_urls" {
